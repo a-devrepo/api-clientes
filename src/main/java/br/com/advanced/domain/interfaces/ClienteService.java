@@ -16,5 +16,7 @@ public interface ClienteService {
 	
 	ObterClienteDTO inativar(UUID id);
 	
-	Page<ObterClienteDTO> consultar(int page, int size, String sortBy, String direction);
+	Page<ObterClienteDTO> consultarAtivos(int page, int size, String sortBy, String direction);
+
+	ObterClienteDTO obterAtivoPorId(UUID id);
 }
