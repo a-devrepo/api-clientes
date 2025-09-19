@@ -14,8 +14,20 @@ public class ClienteServiceTest {
 	}
 	
 	@Test
-	@DisplayName("Deve salvar cliente")
-	public void deveSalvarCLiente() {
+	@DisplayName("Deve criar um cliente com sucesso")
+	public void deveCriarCLiente() {
+		fail();
+	}
+	
+	@Test
+	@DisplayName("Deve atualizar um cliente com sucesso")
+	public void deveAtualizarCLiente() {
+		fail();
+	}
+	
+	@Test
+	@DisplayName("Deve inativar um cliente com sucesso")
+	public void deveInativarCLiente() {
 		fail();
 	}
 }
