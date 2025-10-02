@@ -1,20 +1,35 @@
 services:
- 
- postgres:
-   image: postgres:16
-   container_name: postgres_apiclientes
-   environment:
-     POSTGRES_DB: bd_clientes
-     POSTGRES_USER: user_bdclientes
-     POSTGRES_PASSWORD: pass_bdclientes
-   ports:
-     - "5434:5432"
-   networks:
-     - rede_bdclientes
-   volumes:
-     - postgres_data:/var/lib/postgresql/data
+  api-clientes:
+    container_name: springboot-apiclientes
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8082"
+    networks:
+      - rede_bdclientes
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bd_clientes
+
+  postgres:
+    image: postgres:16
+    container_name: postgres_apiclientes
+    environment:
+      POSTGRES_DB: bd_clientes
+      POSTGRES_USER: user_bdclientes
+      POSTGRES_PASSWORD: pass_bdclientes
+    ports:
+      - "5434:5432"
+    networks:
+      - rede_bdclientes
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
 networks:
- rede_bdclientes:
-   driver: bridge
+  rede_bdclientes:
+    driver: bridge
+
 volumes:
- postgres_data:
+  postgres_data:
