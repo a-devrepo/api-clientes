@@ -30,7 +30,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<swagger.version>2.8.13</swagger.version>
-		<scalar.version>0.3.1</scalar.version>
+		<scalar.version>0.3.9</scalar.version>
 		<model-mapper.version>3.2.4</model-mapper.version>
 		<javafaker.version>1.0.2</javafaker.version>
 	</properties>
