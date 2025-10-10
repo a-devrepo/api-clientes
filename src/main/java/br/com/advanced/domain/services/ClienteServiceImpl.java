@@ -3,8 +3,13 @@ package br.com.advanced.domain.services;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import br.com.advanced.domain.events.NovoClienteEvent;
 import br.com.advanced.domain.exceptions.CpfJaExistenteException;
 import br.com.advanced.domain.exceptions.EmailJaExistenteException;
+
+import br.com.advanced.infrastructure.outbox.OutboxMessage;
+import br.com.advanced.infrastructure.repositories.OutboxMessageRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,13 +23,17 @@ import br.com.advanced.domain.entities.Cliente;
 import br.com.advanced.domain.interfaces.ClienteService;
 import br.com.advanced.infrastructure.repositories.ClienteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class ClienteServiceImpl implements ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final OutboxMessageRepository outboxMessageRepository;
+    private final ObjectMapper objectMapper;
 
+    @Transactional
     @Override
     public ObterClienteDTO criar(CriarClienteDTO dto) {
 
@@ -36,9 +45,9 @@ public class ClienteServiceImpl implements ClienteService {
             throw new EmailJaExistenteException(dto.getEmail());
         }
 
-        var mapper = new ModelMapper();
+        var modelMapper = new ModelMapper();
 
-        var cliente = mapper.map(dto, Cliente.class);
+        var cliente = modelMapper.map(dto, Cliente.class);
 
         cliente.setDataHoraCriacao(LocalDateTime.now());
         cliente.setDataHoraUltimaAlteracao(LocalDateTime.now());
@@ -46,7 +55,26 @@ public class ClienteServiceImpl implements ClienteService {
 
         clienteRepository.save(cliente);
 
-        return mapper.map(cliente, ObterClienteDTO.class);
+        var event = new NovoClienteEvent(
+                cliente.getId(),
+                cliente.getNome(),
+                cliente.getEmail(),
+                cliente.getCpf(),
+                cliente.getDataHoraCriacao()
+        );
+
+        try {
+            var outboxMessage = new OutboxMessage();
+            outboxMessage.setAggregateType("Cliente");
+            outboxMessage.setAggregateId(event.id() != null ? event.id().toString() : null);
+            outboxMessage.setType("NovoCliente");
+            outboxMessage.setPayload(objectMapper.writeValueAsString(event));
+            outboxMessageRepository.save(outboxMessage);
+        } catch (Exception e) {
+            throw new IllegalStateException(e.getMessage());
+        }
+
+        return modelMapper.map(cliente, ObterClienteDTO.class);
     }
 
     @Override
