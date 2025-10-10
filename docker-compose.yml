@@ -27,6 +27,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_apiclientes
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - rede_bdclientes
+
 networks:
   rede_bdclientes:
     driver: bridge
