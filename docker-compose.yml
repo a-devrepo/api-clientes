@@ -41,7 +41,7 @@ services:
 
 networks:
   rede_bdclientes:
-    driver: bridge
+    external: true
 
 volumes:
   postgres_data:
